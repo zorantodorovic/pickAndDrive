@@ -54,18 +54,50 @@ class Login extends Component {
         // var string = `${this.state.username}:${this.state.password}`;
         // var bs64 = btoa(string);
         // return bs64;
+        return null;
+    }
+
+    returnMockData() {
+        let json = {
+            availableCars: [
+                {
+                   id: 1,
+                   marka: "Fiat",
+                   vrsta: "Gradski automobil",
+                   cijena: 20,
+                   opis: "bomba od auta"
+                },
+                {
+                    id: 2,
+                    marka: "Opel",
+                    vrsta: "Gradski automobil",
+                    cijena: 20,
+                    opis: "bomba od auta"
+                }
+            ]
+        };
+
+        return json;
     }
 
     login() {
         var basicToken = this.toBase64();
         // console.log(basicToken);
         this.setState({ loading: true });
+        let data = this.returnMockData();
         setTimeout(() => {
+            // this.props.navigator.push({
+            //     name: 'listings',
+            //     passProps: {
+            //         title: 'Cars',
+            //         data: data.availableCars
+            //     }
+            // });
             this.props.navigator.push({
                 name: 'home',
                 passProps: {
-                    ipAddress: serverIpAddress,
-                    basicToken: basicToken
+                    title: 'Pick date',
+                    data: data.availableCars
                 }
             });
         }, 1000);
@@ -79,6 +111,8 @@ class Login extends Component {
         if (this.state.loading) {
             return this.renderLoadingView();
         }
+
+        console.log(this.returnMockData());
 
 	    return (
 	      	<View style={styles.mainWrapper}>

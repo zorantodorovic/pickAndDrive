@@ -9,8 +9,7 @@ import {
 } from 'react-native';
 import Login from './app/Login';
 import Home from './app/Home';
-
-// import Listings from './app/Listings';
+import Listings from './app/Listings';
 // import RecordsListings from './app/RecordsListings';
 
 export default class pickAndDrive extends Component {
@@ -28,9 +27,9 @@ export default class pickAndDrive extends Component {
             case 'home':
                 return <Home navigator={navigator} {...route.passProps}/>
                 break;
-            // case 'listings':
-            //     return <Listings navigator={navigator} {...route.passProps}/>
-            //     break;
+            case 'listings':
+                return <Listings navigator={navigator} {...route.passProps}/>
+                break;
             // case 'records':
             //     return <RecordsListings navigator={navigator} {...route.passProps}/>
             //     break;

@@ -4,22 +4,34 @@ import React, { Component } from 'react';
 import Dimensions from 'Dimensions';
 
 var windowWidth = Dimensions.get('window').width;
+var windowHeight = Dimensions.get('window').height;
 
 import {
 	StyleSheet,
     View,
     Text,
+    Image,
     TextInput,
     TouchableHighlight,
-    ActivityIndicator
+    TouchableOpacity,
+    ActivityIndicator,
+    DatePickerIOS,
+    Picker
 } from 'react-native';
 
 class Home extends Component {
 
 	constructor(props) {
-	  super(props);
-	
-	  this.state = {};
+	   super(props);
+	   this.state = {
+            dateFrom: new Date(),
+            showFirstDatePicker: false,
+            dateTo: new Date(),
+            showSecondDatePicker: false,
+            city: 'Zagreb',
+            showcityPicker: false,
+            timeZoneOffsetInHours: (-1) * (new Date()).getTimezoneOffset() / 60,
+        };
 	}
 
 	renderNavBar() {
@@ -30,135 +42,16 @@ class Home extends Component {
         );
     }
 
-    componentDidMount() {
-    }
-
-    getAllRecords() {
-        var arr = [];
-        this.setState({ loading: true });
-        fetch(`http://${this.props.ipAddress}:8080/rest/records`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${this.props.basicToken}`,
-          }
-        })
-        .then((response) => response.json())
-        .then((responseData) => {
-            responseData.forEach( function(element, index) {
-                arr.push(element.dateTime);
-            });
-            this.setState({ loading: false });
-            this.props.navigator.push({
-                name: 'records',
-                passProps: {
-                    title: 'Records',
-                    data: responseData
-                }
-            });
-        })
-        .catch((error) => {
-            console.warn(error);
-        });
-    }
-
-    getAllUsers() {
-        var arr = [];
-        this.setState({ loading: true });
-        fetch(`http://${this.props.ipAddress}:8080/rest/users`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${this.props.basicToken}`,
-          }
-          // body: JSON.stringify({
-          // })
-        })
-        // .then((response) => {
-        //     console.log(response);
-        //     // response.text();
-        //     response.json();
-        // })
-        .then((response) => response.json())
-        .then((responseJson) => {
-            responseJson.forEach( function(element, index) {
-                arr.push(element.username);
-            });
-            this.setState({ loading: false });
-            this.props.navigator.push({
-                name: 'listings',
-                passProps: {
-                    title: 'Users',
-                    data: arr
-                }
-            });
-        })
-        .catch((error) => {
-            console.warn(error);
-        });
-    }
-
-    getAllSinks() {
-        var arr = [];
-        this.setState({ loading: true });
-        fetch(`http://${this.props.ipAddress}:8080/rest/sinks?userId=1`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${this.props.basicToken}`,
-          }
-        })
-        .then((response) => response.json())
-        .then((responseJson) => {
-            responseJson.forEach( function(element, index) {
-                arr.push(element.uri);
-            });
-            this.setState({ loading: false });
-            console.log(responseJson);
-            this.props.navigator.push({
-                name: 'listings',
-                passProps: {
-                    title: 'Sinks',
-                    data: arr
-                }
-            });
-        })
-        .catch((error) => {
-            console.warn(error);
-        });
-    }
 
     getAllSensors() {
-        var arr = [];
-        this.setState({ loading: true });
-        fetch(`http://${this.props.ipAddress}:8080/rest/sensors`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${this.props.basicToken}`,
-          }
-        })
-        .then((response) => response.json())
-        .then((responseJson) => {
-            responseJson.forEach( function(element, index) {
-                arr.push(element.ipAddress);
-            });
-            this.setState({ loading: false });
-            this.props.navigator.push({
-                name: 'listings',
-                passProps: {
-                    title: 'Sensors',
-                    data: arr
-                }
-            });
-        })
-        .catch((error) => {
-            console.warn(error);
-        });
+        
+    this.props.navigator.push({
+        name: 'listings',
+        passProps: {
+            title: 'Cars',
+            data: this.props.data
+        }
+    });
     }
 
     renderLoadingView() {
@@ -179,32 +72,60 @@ class Home extends Component {
             return this.renderLoadingView();
         }
 
+        var showFirstDatePicker = this.state.showFirstDatePicker ?
+            <DatePickerIOS
+                style={styles.datepicker}
+                date={this.state.dateFrom} onDateChange={(date)=>this.setState({dateFrom: date})}
+                mode="date"/> : <View />
+        var showSecondDatePicker = this.state.showSecondDatePicker ?
+            <DatePickerIOS
+                style={styles.datepicker}
+                date={this.state.dateTo} onDateChange={(date)=>this.setState({dateTo: date})}
+                mode="date"/> : <View />
+        var cityPicker = this.state.showcityPicker ? 
+            <Picker
+                style={styles.datepicker}
+                selectedValue={this.state.city}
+                onValueChange={(city) => this.setState({city: city})}>
+              <Picker.Item label="Zagreb" value="Zagreb" />
+              <Picker.Item label="Split" value="Split" />
+              <Picker.Item label="Osijek" value="Osijek" />
+              <Picker.Item label="Rijeka" value="Rijeka" />
+            </Picker> : <View />
+
+
 	   	return (
 	      	<View style={styles.mainWrapper}>
 		      	{this.renderNavBar()}
-		      	<View style={styles.formWrapper}>
-		        	<TouchableHighlight
-                        onPress={this.getAllRecords.bind(this)}
-                        underlayColor='white'>
-                        <View style={styles.button}>
-                            <Text>Get all records</Text>
-                        </View>
-                    </TouchableHighlight>
-                    <TouchableHighlight
-                        onPress={this.getAllSinks.bind(this)}
-                        underlayColor='white'>
-                        <View style={styles.button}>
-                            <Text>Get all sinks</Text>
-                        </View>
-                    </TouchableHighlight>
-                    <TouchableHighlight
-                        onPress={this.getAllSensors.bind(this)}
-                        underlayColor='white'>
-                        <View style={styles.button}>
-                            <Text>Get all sensors</Text>
-                        </View>
-                    </TouchableHighlight>
-		      	</View>
+                <Image source={require('./img/background.jpg')} style={styles.backgroundImage}>
+    		      	<View style={styles.formWrapper}>
+                        <Text style={{color:'white', paddingBottom: 10}}>Date from:</Text>
+                        <TouchableOpacity 
+                            onPress={() => this.setState({showFirstDatePicker: !this.state.showFirstDatePicker})}>
+                            <Text style={styles.input}>{this.state.dateFrom.toISOString().slice(0, 10)}</Text>
+                        </TouchableOpacity>
+                        {showFirstDatePicker}
+                        <Text style={{color:'white', paddingBottom: 10, paddingTop: 15}}>Date to:</Text>
+                        <TouchableOpacity 
+                            onPress={() => this.setState({showSecondDatePicker: !this.state.showSecondDatePicker})}>
+                            <Text style={styles.input}>{this.state.dateTo.toISOString().slice(0, 10)}</Text>
+                        </TouchableOpacity>
+                         {showSecondDatePicker}
+                         <Text style={{color:'white', paddingBottom: 10, paddingTop: 15}}>City:</Text>
+                         <TouchableOpacity 
+                            onPress={() => this.setState({showcityPicker: !this.state.showcityPicker})}>
+                            <Text style={styles.input}>{this.state.city}</Text>
+                        </TouchableOpacity>
+                        {cityPicker}
+                        <TouchableHighlight
+                            onPress={this.getAllSensors.bind(this)}
+                            underlayColor='white'>
+                            <View style={styles.button}>
+                                <Text>Submit</Text>
+                            </View>
+                        </TouchableHighlight>
+    		      	</View>
+                </Image>
 		    </View>
 		);
   	}
@@ -215,6 +136,13 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center'
 	},
+    backgroundImage: {
+        zIndex: 1,
+        marginTop: 64,
+        resizeMode: 'cover',
+        width: windowWidth,
+        height: windowHeight
+    },
     toolbar: {
         backgroundColor:'#006CB2',
         position: 'absolute',
@@ -262,18 +190,37 @@ const styles = StyleSheet.create({
         fontSize: 17,   
     },
     formWrapper: {
-    	marginTop: 100,
+    	marginTop: 15,
     	flex: 1,
-    	alignItems: 'center'
+        paddingLeft: 10
+    	// alignItems: 'center',
+        // backgroundColor: 'red'
+    },
+    input: {
+        width: windowWidth - 20,
+        height: 40,
+        borderColor: 'white',
+        borderWidth: 1,
+        color: 'white',
+        padding: 10,
+        borderRadius: 4,
+        justifyContent: 'center'
+    },
+    datepicker: {
+        marginTop: 15,
+        height: 200,
+        width: windowWidth - 20,
+        backgroundColor: 'white',
+        borderRadius: 2
     },
     button: {
     	backgroundColor: 'gray',
-    	width: 100,
+    	width: windowWidth - 20,
     	height: 50,
     	alignItems: 'center',
     	justifyContent: 'center',
     	borderRadius: 2,
-    	marginTop: 15
+    	marginTop: 15,
     }
 });
 
